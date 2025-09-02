@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.svg';
 import { ChevronDownIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Dropdown, DropdownButton, DropdownMenu, DropdownMenuMulti } from './dropdown';
@@ -7,8 +7,11 @@ import { menuData } from '../data/menuData';
 
 export default function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const isSchoolDistrictActive = location.pathname === '/school-district';
   const isPlansActive = location.pathname === '/plans';
+  const isBusinessActive = location.pathname === '/business';
+  const isBrowseActive = location.pathname.startsWith('/browse');
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -42,17 +45,38 @@ export default function Navbar() {
               </Link>
               <Dropdown>
                 <DropdownButton>
-                  Library
+                  <span className={isBrowseActive ? 'font-bold' : ''}>
+                    Library
+                  </span>
                   <ChevronDownIcon className="w-4 h-4 ml-1" />
                 </DropdownButton>
                 <DropdownMenu width="w-auto" className="p-0">
-                  <DropdownMenuMulti items={menuData} onClose={() => {}} />
+                  <DropdownMenuMulti 
+                    items={menuData} 
+                    onClose={() => {}}
+                    onItemClick={(item) => {
+                      if (item.type === 'link' && item.href) {
+                        navigate(item.href);
+                      } else if (item.children && typeof item.children === 'string') {
+                        // Handle subject click (e.g., "Math", "Science")
+                        const grade = item.parentLabel?.toLowerCase().replace(' ', '-');
+                        const subject = item.children.toLowerCase().replace(/\s+/g, '-');
+                        navigate(`/library/grade/${grade}/subject/${subject}`);
+                      } else if (item.label) {
+                        // Handle grade level click (e.g., "1st grade")
+                        const grade = item.label.toLowerCase().replace(' ', '-');
+                        navigate(`/library/grade/${grade}`);
+                      }
+                    }}
+                  />
                 </DropdownMenu>
               </Dropdown>
               <div className="h-10 w-px bg-white/30 mx-3"></div>
               <Link
                 to="/business"
-                className="px-4 py-2 rounded-md hover:bg-white/30 transition font-bold"
+                className={`px-4 py-2 rounded-md transition font-bold ${
+                  isBusinessActive ? 'bg-white/30' : 'hover:bg-white/30'
+                }`}
               >
                 For Business
               </Link>

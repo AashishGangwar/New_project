@@ -44,6 +44,7 @@ const Stat = ({ number, label, color = 'text-indigo-600' }) => (
 );
 
 const Business = () => {
+  // State for PowerUp Tabs
   const [activeTab, setActiveTab] = useState('hr');
 
   // ---------- HERO SLIDES ----------
@@ -76,8 +77,8 @@ const Business = () => {
             </div>
             <div className="relative">
               <img
-                src="images/Business/Hero-1.jpg"
-                alt="AI-powered learning platform"
+                src="/images/Business/Hero-1.jpg"
+                alt="Team collaborating in a modern office space"
                 className="rounded-lg shadow-2xl"
               />
             </div>
@@ -107,8 +108,8 @@ const Business = () => {
             </div>
             <div className="relative">
               <img
-                src="images/Business/Hero-2.jpg"
-                alt="Training across industries"
+                src="/images/Business/Hero-2.jpg"
+                alt="Diverse team in a training session"
                 className="rounded-lg shadow-2xl"
               />
             </div>
@@ -138,8 +139,8 @@ const Business = () => {
             </div>
             <div className="relative">
               <img
-                src="images/Business/Hero-3.jpg"
-                alt="Training outcomes and results"
+                src="/images/Business/Hero-3.jpg"
+                alt="Business professionals reviewing data and analytics"
                 className="rounded-lg shadow-2xl"
               />
             </div>
@@ -153,8 +154,7 @@ const Business = () => {
   return (
     <div className="min-h-screen bg-[#f2efda] overflow-x-hidden">
       <BusinessNavbar />
-
-      <div className="pt-16 px-4 sm:px-0">
+      <main className="pt-16 px-4 sm:px-0">
         {/* Hero Carousel */}
         <div className="w-full overflow-hidden">
           <Carousel slides={slides} interval={5000} />
@@ -187,8 +187,8 @@ const Business = () => {
               <div className="w-full lg:w-1/2 flex justify-center mt-8 lg:mt-0">
                 <div className="relative w-full max-w-lg rounded-xl overflow-hidden">
                   <img
-                    src="images/Business/doctors-min.png"
-                    alt="Business Solution"
+                    src="/images/Business/doctors-min.png"
+                    alt="Medical professionals discussing patient care"
                     className="w-full h-auto object-cover"
                     loading="lazy"
                   />
@@ -224,6 +224,7 @@ const Business = () => {
                 </div>
               </div>
             </div>
+          
 
             {/* Capterra Card */}
             <div className="border-2 border-[#3b142b] rounded-xl p-4 sm:p-6 flex flex-col items-center text-center">
@@ -248,6 +249,7 @@ const Business = () => {
                 </div>
               </div>
             </div>
+          </div>
           </div>
 
           {/* Why Choose Us */}
@@ -290,13 +292,13 @@ const Business = () => {
         <ScrollCards1 />
 
         {/* Two Cards Section */}
-        <section className="w-full bg-[#f2efda] px-4 sm:px-6">
+        <section className="w-full bg-[#f2efda] px-4 sm:px-6 py-16">
+          <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
               {/* LEFT CARD */}
               <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-[#E8EE86] shadow-xl">
-                <div className="w-full h-full">
-                    <div className="p-6 sm:p-8 lg:p-10 xl:p-12">
-                    <div className="max-w-3xl">
+                <div className="w-full h-full p-6 sm:p-8 lg:p-10 xl:p-12">
+                  <div className="max-w-3xl">
                       <h2 className="text-3xl/[1.1] sm:text-4xl md:text-5xl font-extrabold tracking-tight text-[#2B2A2A]">
                         How is <br className="hidden sm:block" />
                         <span className="block mt-1 sm:mt-2">Wayground being</span>
@@ -317,7 +319,6 @@ const Business = () => {
                       >
                         Explore solutions
                       </button>
-                    </div>
                   </div>
                 </div>
                 <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-black/5" />
@@ -325,9 +326,8 @@ const Business = () => {
 
               {/* RIGHT CARD */}
               <div className="relative overflow-hidden rounded-3xl bg-[#0A3B52] shadow-xl">
-                <div className="w-full h-full">
-                  <div className="p-6 sm:p-8 lg:p-12">
-                    <div className="max-w-3xl">
+                <div className="w-full h-full p-6 sm:p-8 lg:p-12">
+                  <div className="max-w-3xl">
                       <h2 className="text-4xl/[1.1] sm:text-5xl font-extrabold tracking-tight text-white">
                         Who&apos;s using <br />
                         <span className="block mt-2">Wayground?</span>
@@ -347,16 +347,13 @@ const Business = () => {
                       >
                         Explore industries
                       </button>
-                    </div>
                   </div>
                 </div>
                 <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-white/10"></div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
+        </section>
 
         {/* eBook CTA */}
         <section className="w-full bg-[#f2efda] py-14 lg:py-20">
@@ -455,7 +452,7 @@ const Business = () => {
         </section>
 
         {/* PowerUp Tabs */}
-        <section className="w-full bg-[#f2efda] py-10 md:py-14">
+        <section className="w-full bg-[#3b142b] py-10 md:py-14">
           <div className="max-w-6xl mx-auto px-4">
             {/* Pills */}
             <div className="flex justify-center gap-3 mb-6">
@@ -470,10 +467,10 @@ const Business = () => {
                     key={id}
                     onClick={() => setActiveTab(id)}
                     aria-selected={isActive}
-                    className={`px-5 py-2 rounded-xl text-lg font-semibold transition ${
+                    className={`px-6 py-3 rounded-full text-sm font-medium transition-colors ${
                       isActive
-                        ? 'bg-[#381826] text-white shadow'
-                        : 'border-[#3b142b] border text-[#3b142b] hover:bg-[#3b142b]/20'
+                        ? 'bg-white text-[#3b142b]'
+                        : 'text-white hover:bg-white/10'
                     }`}
                   >
                     {label}
@@ -607,8 +604,7 @@ const Business = () => {
             <Footer />
           </div>
         </section>
-
-      </div>
+      </main>
     </div>
   );
 };

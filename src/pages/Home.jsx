@@ -111,89 +111,172 @@ const Home = () => {
   }, []);
 
 
+  // Infinite scroll carousel component
+  const InfiniteCarousel = () => {
+    const carouselRef = useRef(null);
+    const containerRef = useRef(null);
+    const [isPaused, setIsPaused] = useState(false);
+    const imageCount = 10; // Number of unique images
+    const itemWidth = 200; // Width of each item in pixels
+    const gap = 32; // Space between items in pixels
+    const scrollSpeed = 1.5; // Pixels per frame
+
+    useEffect(() => {
+      const carousel = carouselRef.current;
+      const container = containerRef.current;
+      if (!carousel || !container) return;
+
+      let scrollPosition = 0;
+      let animationId;
+      let resetInProgress = false;
+
+      const scroll = () => {
+        if (isPaused) {
+          animationId = requestAnimationFrame(scroll);
+          return;
+        }
+
+        scrollPosition += scrollSpeed;
+        const maxScroll = (itemWidth + gap) * imageCount;
+        
+        if (scrollPosition >= maxScroll) {
+          // When we reach the end, reset to the start without animation
+          if (!resetInProgress) {
+            resetInProgress = true;
+            // Instantly reset to the beginning
+            carousel.scrollLeft = 0;
+            scrollPosition = 0;
+            // Small delay to prevent visual glitch
+            setTimeout(() => {
+              resetInProgress = false;
+            }, 16);
+          }
+        } else {
+          carousel.scrollLeft = scrollPosition;
+        }
+        
+        animationId = requestAnimationFrame(scroll);
+      };
+
+      // Initialize scroll position
+      carousel.scrollLeft = 0;
+      animationId = requestAnimationFrame(scroll);
+      
+      return () => {
+        cancelAnimationFrame(animationId);
+      };
+    }, [isPaused]);
+
+    return (
+      <div className="hidden md:block w-full overflow-hidden py-4 relative">
+        <div 
+          ref={carouselRef}
+          className="w-full overflow-x-auto scrollbar-hide"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
+          <div ref={containerRef} className="flex" style={{ gap: `${gap}px`, width: 'max-content' }}>
+          {[
+            "/images/sidebar/Math.avif",
+            "/images/sidebar/Science.avif",
+            "/images/sidebar/SocialStudies.avif",
+            "/images/sidebar/Reading.avif",
+            "/images/sidebar/ForeignLanguage.avif",
+            "/images/sidebar/ELA.avif",
+            "/images/sidebar/TestPrep.avif",
+            "/images/sidebar/Elementary.avif",
+            "/images/sidebar/Career.avif",
+            "/images/sidebar/Writing.avif"
+          ].flatMap((img, i, arr) => [
+            // Original set
+            <div key={`img-${i}`} className="w-[200px] h-[200px] flex-shrink-0">
+              <img 
+                src={img} 
+                alt={`Icon ${i + 1}`}
+                className="w-full h-full object-contain"
+                loading="lazy"
+              />
+            </div>,
+            // Duplicate set for seamless loop
+            <div key={`dup-${i}`} className="w-[200px] h-[200px] flex-shrink-0">
+              <img 
+                src={img} 
+                alt={`Icon ${i + 1}`}
+                className="w-full h-full object-contain"
+                loading="lazy"
+              />
+            </div>
+          ])}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <ParallaxProvider>
-      <div className="min-h-screen bg-[#3b142b] text-white">
+      <div className="min-h-screen bg-[#3b142b] text-white overflow-x-hidden">
         <Navbar />
         
         {/* Mobile Search Bar - Only visible on mobile */}
-        <div className="lg:hidden p-4">
+        <div className="lg:hidden p-3 sm:p-4 sticky top-0 z-30 bg-[#3b142b] shadow-md">
           <SearchBar />
         </div>
         
-        <div className="flex flex-col lg:flex-row flex-1">
-          {/* Sidebar */}
-          <div
-            className="
-              order-2 md:order-1 ml-8 mt-12
-              w-full md:w-[200px] lg:w-[300px]
-              md:fixed md:left-0 md:top-16 md:h-[calc(100vh-4rem)]
-              z-20 bg-[#3b142b]
-            "
-          >
-            <Sidebar />
-          </div>
+        <div className="flex flex-col w-full">
+          {/* Hero Section - Full Screen */}
+          <section className="relative flex flex-col items-center justify-center py-4 sm:py-6 md:py-8 bg-[#3b142b] text-center overflow-x-hidden min-h-[100vh] w-full">
+              {/* Background SVGs - Visible on all screens */}
+              <div className="absolute inset-0 w-full h-full overflow-hidden z-0 hidden sm:block">
+                {/* Left SVG */}
+                <div className="absolute top-0 -left-20 w-[18rem] h-[18rem] sm:w-[28rem] sm:h-[28rem] md:w-[36rem] md:h-[36rem] lg:-left-32 xl:-left-40 opacity-20 sm:opacity-30 -translate-y-1/5 sm:-translate-y-1/4">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 400 400"
+                    fill="none"
+                    className="w-full h-full text-pink-400"
+                    preserveAspectRatio="xMidYMid meet"
+                  >
+                    <path d="M344.95 213.185L199.168 213.185C162.854 213.185 133.914 207.985 112.962 193.967C92.3928 180.205 79.364 157.834 74.7451 123.056L74.5313 121.391L74.5303 121.385C73.9129 116.638 73.6023 111.728 73.5088 106.748L73.5098 106.748L73.5098 103.787C73.4166 57.1363 88.6625 28.6635 110.006 15.3935L110.019 15.3847L110.031 15.3769C110.694 14.9358 111.008 14.0133 110.637 13.2275L110.638 13.2265L36.1094 -150.775L36.1094 -150.776C35.8088 -151.441 35.8099 -152.52 36.1651 -153.461C36.5316 -154.433 37.0779 -154.815 37.5303 -154.815L67.1055 -154.815L249.356 -153.507L320.367 -153.507C321.331 -153.507 322.143 -152.8 322.31 -151.873L322.334 -151.685L346.885 211.105L346.885 211.111L346.89 211.32C346.857 212.355 346.018 213.185 344.95 213.185Z" stroke="currentColor" strokeWidth="1.5" />
+                    <path d="M-601.845 -36.8321L-641.279 333.337C-641.365 334.139 -640.927 335.048 -639.896 335.812C-638.941 336.52 -637.576 337.012 -636.056 337.053L-635.749 337.054L-635.738 337.054L-128.973 335.308L-128.972 335.308C-45.3758 335.063 21.9625 318.297 69.9976 286.426C117.997 254.579 146.795 207.604 153.28 146.732C159.764 85.8627 140.98 38.932 99.8548 7.23318C59.3088 -24.0194 -3.08653 -40.5704 -84.7775 -40.8464L-88.6812 -40.8468L-88.6822 -40.8469L-597.348 -39.48L-597.351 -39.4803C-598.641 -39.4801 -599.765 -39.141 -600.564 -38.6254C-601.366 -38.1083 -601.778 -37.4627 -601.845 -36.8321Z" stroke="currentColor" strokeWidth="1.5" />
+                    <path d="M246 98.8437L246 218.987C246 273.626 262.327 317.099 292.472 346.912C322.618 376.726 366.703 393 422.455 393C478.237 393 522.345 376.726 552.506 346.911C582.665 317.098 599 273.626 599 218.987L599 98.8437C599 97.8173 598.179 97 597.174 97L247.826 97C246.821 97 246 97.8173 246 98.8437Z" stroke="currentColor" strokeWidth="1.5" />
+                  </svg>
+                </div>
 
-          {/* Main */}
-          <main
-            className="
-              order-1 md:order-2 flex-1
-              p-4
-              md:pl-[216px] lg:pl-[316px]
-              md:pr-8 md:pt-8
-              min-h-[calc(100vh-4rem)]
-            "
-          >
-            <div className="max-w-6xl mx-auto mt-20">
-            {/* Hero Section */}
-            <section className="relative flex flex-col items-center justify-center py-8 md:py-12 bg-[#3b142b] opacity-90 text-center overflow-hidden">
-              {/* Background SVGs - Hidden on mobile, visible on md and up */}
-              <div className="hidden md:block absolute -top-40 -left-40 w-[40rem] h-[40rem] opacity-40">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 400 400"
-                  fill="none"
-                  className="w-full h-full text-pink-400"
-                  preserveAspectRatio="xMidYMid meet"
-                >
-                  <path d="M344.95 213.185L199.168 213.185C162.854 213.185 133.914 207.985 112.962 193.967C92.3928 180.205 79.364 157.834 74.7451 123.056L74.5313 121.391L74.5303 121.385C73.9129 116.638 73.6023 111.728 73.5088 106.748L73.5098 106.748L73.5098 103.787C73.4166 57.1363 88.6625 28.6635 110.006 15.3935L110.019 15.3847L110.031 15.3769C110.694 14.9358 111.008 14.0133 110.637 13.2275L110.638 13.2265L36.1094 -150.775L36.1094 -150.776C35.8088 -151.441 35.8099 -152.52 36.1651 -153.461C36.5316 -154.433 37.0779 -154.815 37.5303 -154.815L67.1055 -154.815L249.356 -153.507L320.367 -153.507C321.331 -153.507 322.143 -152.8 322.31 -151.873L322.334 -151.685L346.885 211.105L346.885 211.111L346.89 211.32C346.857 212.355 346.018 213.185 344.95 213.185Z" stroke="currentColor" strokeWidth="1.5" />
-                  <path d="M-601.845 -36.8321L-641.279 333.337C-641.365 334.139 -640.927 335.048 -639.896 335.812C-638.941 336.52 -637.576 337.012 -636.056 337.053L-635.749 337.054L-635.738 337.054L-128.973 335.308L-128.972 335.308C-45.3758 335.063 21.9625 318.297 69.9976 286.426C117.997 254.579 146.795 207.604 153.28 146.732C159.764 85.8627 140.98 38.932 99.8548 7.23318C59.3088 -24.0194 -3.08653 -40.5704 -84.7775 -40.8464L-88.6812 -40.8468L-88.6822 -40.8469L-597.348 -39.48L-597.351 -39.4803C-598.641 -39.4801 -599.765 -39.141 -600.564 -38.6254C-601.366 -38.1083 -601.778 -37.4627 -601.845 -36.8321Z" stroke="currentColor" strokeWidth="1.5" />
-                  <path d="M246 98.8437L246 218.987C246 273.626 262.327 317.099 292.472 346.912C322.618 376.726 366.703 393 422.455 393C478.237 393 522.345 376.726 552.506 346.911C582.665 317.098 599 273.626 599 218.987L599 98.8437C599 97.8173 598.179 97 597.174 97L247.826 97C246.821 97 246 97.8173 246 98.8437Z" stroke="currentColor" strokeWidth="1.5" />
-                </svg>
-              </div>
-
-              <div className="hidden md:block absolute -top-40 -right-40 w-[40rem] h-[40rem] opacity-40">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 400 400"
-                  fill="none"
-                  className="w-full h-full text-pink-400"
-                  preserveAspectRatio="xMidYMid meet"
-                >
-                  <path d="M344.95 213.185L199.168 213.185C162.854 213.185 133.914 207.985 112.962 193.967C92.3928 180.205 79.364 157.834 74.7451 123.056L74.5313 121.391L74.5303 121.385C73.9129 116.638 73.6023 111.728 73.5088 106.748L73.5098 106.748L73.5098 103.787C73.4166 57.1363 88.6625 28.6635 110.006 15.3935L110.019 15.3847L110.031 15.3769C110.694 14.9358 111.008 14.0133 110.637 13.2275L110.638 13.2265L36.1094 -150.775L36.1094 -150.776C35.8088 -151.441 35.8099 -152.52 36.1651 -153.461C36.5316 -154.433 37.0779 -154.815 37.5303 -154.815L67.1055 -154.815L249.356 -153.507L320.367 -153.507C321.331 -153.507 322.143 -152.8 322.31 -151.873L322.334 -151.685L346.885 211.105L346.885 211.111L346.89 211.32C346.857 212.355 346.018 213.185 344.95 213.185Z" stroke="currentColor" strokeWidth="1.5" />
-                  <path d="M-601.845 -36.8321L-641.279 333.337C-641.365 334.139 -640.927 335.048 -639.896 335.812C-638.941 336.52 -637.576 337.012 -636.056 337.053L-635.749 337.054L-635.738 337.054L-128.973 335.308L-128.972 335.308C-45.3758 335.063 21.9625 318.297 69.9976 286.426C117.997 254.579 146.795 207.604 153.28 146.732C159.764 85.8627 140.98 38.932 99.8548 7.23318C59.3088 -24.0194 -3.08653 -40.5704 -84.7775 -40.8464L-88.6812 -40.8468L-88.6822 -40.8469L-597.348 -39.48L-597.351 -39.4803C-598.641 -39.4801 -599.765 -39.141 -600.564 -38.6254C-601.366 -38.1083 -601.778 -37.4627 -601.845 -36.8321Z" stroke="currentColor" strokeWidth="1.5" />
-                  <path d="M246 98.8437L246 218.987C246 273.626 262.327 317.099 292.472 346.912C322.618 376.726 366.703 393 422.455 393C478.237 393 522.345 376.726 552.506 346.911C582.665 317.098 599 273.626 599 218.987L599 98.8437C599 97.8173 598.179 97 597.174 97L247.826 97C246.821 97 246 97.8173 246 98.8437Z" stroke="currentColor" strokeWidth="1.5" />
-                </svg>
+                {/* Right SVG */}
+                <div className="absolute top-0 -right-20 w-[22rem] h-[22rem] sm:w-[34rem] sm:h-[34rem] md:w-[44rem] md:h-[44rem] lg:-right-32 xl:-right-40 opacity-20 sm:opacity-30 -translate-y-1/4 sm:-translate-y-1/3">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 400 400"
+                    fill="none"
+                    className="w-full h-full text-pink-400 transform scale-x-[-1]"
+                    preserveAspectRatio="xMidYMid meet"
+                  >
+                    <path d="M344.95 213.185L199.168 213.185C162.854 213.185 133.914 207.985 112.962 193.967C92.3928 180.205 79.364 157.834 74.7451 123.056L74.5313 121.391L74.5303 121.385C73.9129 116.638 73.6023 111.728 73.5088 106.748L73.5098 106.748L73.5098 103.787C73.4166 57.1363 88.6625 28.6635 110.006 15.3935L110.019 15.3847L110.031 15.3769C110.694 14.9358 111.008 14.0133 110.637 13.2275L110.638 13.2265L36.1094 -150.775L36.1094 -150.776C35.8088 -151.441 35.8099 -152.52 36.1651 -153.461C36.5316 -154.433 37.0779 -154.815 37.5303 -154.815L67.1055 -154.815L249.356 -153.507L320.367 -153.507C321.331 -153.507 322.143 -152.8 322.31 -151.873L322.334 -151.685L346.885 211.105L346.885 211.111L346.89 211.32C346.857 212.355 346.018 213.185 344.95 213.185Z" stroke="currentColor" strokeWidth="1.5" />
+                    <path d="M-601.845 -36.8321L-641.279 333.337C-641.365 334.139 -640.927 335.048 -639.896 335.812C-638.941 336.52 -637.576 337.012 -636.056 337.053L-635.749 337.054L-635.738 337.054L-128.973 335.308L-128.972 335.308C-45.3758 335.063 21.9625 318.297 69.9976 286.426C117.997 254.579 146.795 207.604 153.28 146.732C159.764 85.8627 140.98 38.932 99.8548 7.23318C59.3088 -24.0194 -3.08653 -40.5704 -84.7775 -40.8464L-88.6812 -40.8468L-88.6822 -40.8469L-597.348 -39.48L-597.351 -39.4803C-598.641 -39.4801 -599.765 -39.141 -600.564 -38.6254C-601.366 -38.1083 -601.778 -37.4627 -601.845 -36.8321Z" stroke="currentColor" strokeWidth="1.5" />
+                    <path d="M246 98.8437L246 218.987C246 273.626 262.327 317.099 292.472 346.912C322.618 376.726 366.703 393 422.455 393C478.237 393 522.345 376.726 552.506 346.911C582.665 317.098 599 273.626 599 218.987L599 98.8437C599 97.8173 598.179 97 597.174 97L247.826 97C246.821 97 246 97.8173 246 98.8437Z" stroke="currentColor" strokeWidth="1.5" />
+                  </svg>
+                </div>
               </div>
 
   {/* Foreground Content */}
-  <div className="relative z-10 w-full max-w-5xl px-4 sm:px-6 space-y-4 sm:space-y-6">
-    <h2 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-white text-center mb-1 sm:mb-2">
-      Quizizz is now
-    </h2>
+                <div className="relative z-10 w-full max-w-5xl px-4 sm:px-6 space-y-2 sm:space-y-4 md:space-y-6 flex flex-col items-center justify-center h-full mx-auto -mt-55 md:mt-0">
+                  <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white text-center mb-2 sm:mb-3 md:mb-4">
+                    Quizizz is now
+                  </h2>
 
     {/* WAYGROUND Wordmark - Responsive sizing */}
-    <div className="w-full max-w-3xl sm:max-w-4xl mx-auto transform scale-100 sm:scale-110 md:scale-120 lg:scale-100 my-2 sm:my-4">
+                  <div className="w-full max-w-[280px] sm:max-w-3xl md:max-w-4xl mx-auto transform scale-90 sm:scale-100 md:scale-110 lg:scale-100 my-2 sm:my-4 px-2 sm:px-0">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 600 80"
-        className="w-full h-auto"
+        className="w-full h-auto max-w-full"
         preserveAspectRatio="xMidYMid meet"
       >
         <path d="M59.5952 2.53659L56.0243 32.3951C56.0076 32.5346 55.8904 32.6407 55.7453 32.6407H55.1093C54.9865 32.6407 54.8749 32.557 54.8414 32.4398L46.4052 2.43057C46.3382 2.19063 46.1206 2.02323 45.8695 2.02323L35.7147 1.98975C35.4916 1.98975 35.2907 2.12367 35.2014 2.32454L22.1676 32.5402C22.1229 32.6407 22.0225 32.7076 21.9109 32.7076H21.4701C21.3139 32.7076 21.1912 32.5849 21.1912 32.4286V2.54775C21.1912 2.24085 20.9401 1.98975 20.6332 1.98975H0.557956C0.25108 1.98975 0 2.24085 0 2.54775V71.3993C0 71.7062 0.25108 71.9573 0.557956 71.9573H21.0573C21.2749 71.9573 21.4757 71.8289 21.565 71.6281L37.1766 37.1214C37.2212 37.0209 37.3217 36.9596 37.4333 36.9596H38.5882C38.711 36.9596 38.8226 37.0433 38.856 37.1604L49.0276 71.5611C49.1001 71.7955 49.3121 71.9629 49.5632 71.9629L70.1796 72.0075C70.453 72.0075 70.6874 71.8066 70.732 71.5388L81.6847 2.6984C81.7405 2.35802 81.4782 2.05113 81.1323 2.05113H60.142C59.8575 2.05113 59.6231 2.26317 59.5897 2.54217L59.5952 2.53659Z" fill="#F3EFDA" />
         <path d="M113.814 0.801025C97.1424 0.801025 86.6974 9.63974 84.2257 25.1019L76.8439 71.3545C76.7881 71.6949 77.0504 72.0018 77.3963 72.0018H97.8956C98.169 72.0018 98.4033 71.8009 98.448 71.533L101.132 54.6982C101.154 54.5643 101.271 54.4638 101.405 54.4638H108.999C109.172 54.4638 109.3 54.6201 109.272 54.7875L106.628 71.3601C106.572 71.7004 106.834 72.0073 107.18 72.0073H127.646C127.919 72.0073 128.154 71.8065 128.198 71.5386L135.608 25.1075C138.074 9.63974 130.48 0.806606 113.808 0.806606L113.814 0.801025ZM105.746 25.8161C106.226 22.7918 107.911 21.1289 110.483 21.1289C111.672 21.1289 112.581 21.4916 113.189 22.2059C113.909 23.054 114.143 24.3263 113.875 25.9947L112.151 36.8199C112.129 36.9538 112.012 37.0542 111.878 37.0542H104.284C104.111 37.0542 103.983 36.898 104.011 36.7306L105.752 25.8161H105.746Z" fill="#F3EFDA" />
-        <path d="M172.248 2.62301L162.668 36.8284C162.635 36.9511 162.523 37.0348 162.4 37.0348H161.502C161.346 37.0348 161.223 36.9121 161.223 36.7558L161.195 2.63417C161.195 2.32727 160.944 2.07617 160.637 2.07617H139.005C138.681 2.07617 138.425 2.34959 138.447 2.66765L141.042 42.5534C141.131 43.9038 141.371 45.243 141.856 46.5041C143.848 51.699 148.87 55.2758 154.617 55.2758H157.317C157.412 55.2758 157.479 55.3651 157.451 55.4544L153.015 71.2848C152.915 71.6419 153.183 71.9935 153.551 71.9935H174.597C174.848 71.9935 175.066 71.8261 175.133 71.5861L194.365 2.92433C194.466 2.56721 194.198 2.21567 193.83 2.21567H172.784C172.533 2.21567 172.315 2.38307 172.248 2.62301Z" fill="#F3EFDA" />
-        <path d="M225.98 73.0464C201.52 73.0464 190.07 58.9234 190.07 37.8366C190.07 13.9319 204.917 1.10352 226.739 1.10352C232.826 1.10352 237.725 1.51643 244.376 2.74961C244.633 2.79425 244.822 3.01187 244.834 3.26855L245.888 23.4067C245.899 23.602 245.71 23.7471 245.525 23.6857C241.547 22.4023 236.554 21.1692 228.603 21.1692C220.652 21.1692 211.451 26.007 211.451 37.0554C211.451 48.8738 218.721 52.8021 226.421 52.8021C229.133 52.8021 230.544 52.4729 230.544 52.4729C230.684 52.4562 230.784 52.339 230.784 52.1939V46.0392C230.784 45.883 230.667 45.7602 230.511 45.7602H221.031C220.724 45.7602 220.473 45.5091 220.473 45.2022V28.903C220.473 28.5961 220.724 28.345 221.031 28.345H246.005C246.301 28.345 246.541 28.5738 246.563 28.8696L249.208 70.4238C249.225 70.7139 249.024 70.9706 248.734 71.0097C241.854 72.0308 234.461 73.0464 225.98 73.0408V73.0464Z" fill="#F3EFDA" />
+        <path d="M172.248 2.62301L162.668 36.8284C162.635 36.9511 162.523 32.8738 162.4 32.8738H161.502C161.346 32.8738 161.223 32.8069 161.223 32.7064L161.195 2.63417C161.195 2.32727 160.944 2.07617 160.637 2.07617H139.005C138.681 2.07617 138.425 2.34959 138.447 2.66765L141.042 42.5534C141.131 43.9038 141.371 45.243 141.856 46.5041C143.848 51.699 148.87 55.2758 154.617 55.2758H157.317C157.412 55.2758 157.479 55.3651 157.451 55.4544L153.015 71.2848C152.915 71.6419 153.183 71.9935 153.551 71.9935H174.597C174.848 71.9935 175.066 71.8261 175.133 71.5861L194.365 2.92433C194.466 2.56721 194.198 2.21567 193.83 2.21567H172.784C172.533 2.21567 172.315 2.38307 172.248 2.62301Z" fill="#F3EFDA" />
+        <path d="M225.98 73.0464C201.52 73.0464 190.07 58.9234 190.07 37.8366C190.07 13.9319 204.917 1.10352 226.739 1.10352C232.826 1.10352 237.725 1.51643 244.376 2.74961C244.633 2.79425 244.822 3.01187 244.834 3.26855L245.888 23.4067C245.899 23.602 245.71 23.7471 245.525 23.6857C241.547 22.4023 236.554 21.1692 228.603 21.1692C220.652 21.1692 211.451 26.007 211.451 37.1213C211.451 48.8738 218.721 52.8021 226.421 52.8021C229.133 52.8021 230.544 52.4729 230.544 52.4729C230.684 52.4562 230.784 52.339 230.784 52.1939V46.0392C230.784 45.883 230.667 45.7602 230.511 45.7602H221.031C220.724 45.7602 220.473 45.5091 220.473 45.2022V28.903C220.473 28.5961 220.724 28.345 221.031 28.345H246.005C246.301 28.345 246.541 28.5738 246.563 28.8696L249.208 70.4238C249.225 70.7139 249.024 70.9706 248.734 71.0097C241.854 72.0308 234.461 73.0464 225.98 73.0408V73.0464Z" fill="#F3EFDA" />
         <path d="M295.593 40.1208C295.565 40.0594 295.587 39.9869 295.643 39.9478C299.766 37.381 302.667 31.9015 302.651 23.0014C302.651 22.8563 302.651 22.7057 302.651 22.5606C302.651 22.5383 302.651 22.516 302.651 22.4936C302.651 22.4769 302.651 22.4602 302.651 22.4434C302.634 21.4892 302.573 20.5518 302.455 19.6367C300.77 5.9936 292.429 2.04297 278.642 2.04297H251.001C250.677 2.04297 250.42 2.31639 250.443 2.64003L255.102 71.5306C255.124 71.8207 255.364 72.0495 255.66 72.0495H276.337C276.661 72.0495 276.918 71.7761 276.895 71.4525L275.043 46.0077C275.032 45.8459 275.16 45.7064 275.322 45.7064H277.308C277.431 45.7064 277.537 45.7845 277.576 45.9017L285.778 71.6589C285.851 71.8877 286.068 72.0495 286.308 72.0495H309.218C309.625 72.0495 309.893 71.631 309.726 71.2627L295.593 40.1208ZM279.92 27.8448C278.999 28.8269 277.626 29.3291 275.846 29.3291H273.682C273.537 29.3291 273.414 29.2175 273.403 29.0669L272.633 17.639C272.622 17.4772 272.75 17.3433 272.912 17.3433H275.11C278.82 17.3433 280.857 18.7271 281.181 23.3027C281.32 25.278 280.89 26.807 279.92 27.8448Z" fill="#F3EFDA" />
         <path d="M341.051 0.75293C318.973 0.75293 304.589 14.8592 304.589 36.5207C304.589 58.1822 318.979 72.294 341.051 72.294C363.124 72.294 377.72 58.0874 377.72 36.5207C377.72 14.954 363.236 0.75293 341.051 0.75293ZM341.152 49.2375C333.96 49.2375 329.066 44.0704 329.066 36.5151C329.066 28.9598 333.96 23.6979 341.152 23.6979C348.344 23.6979 353.343 28.8649 353.343 36.5151C353.343 44.1653 348.344 49.2375 341.152 49.2375Z" fill="#F3EFDA" />
         <path d="M417.215 2.08175C416.942 2.08175 416.707 2.28263 416.663 2.55047L409.287 48.5296C408.729 52.0394 406.569 52.776 404.856 52.776C403.69 52.776 402.809 52.4356 402.24 51.7716C401.592 51.0127 401.386 49.8632 401.631 48.3566L408.902 2.72345C408.957 2.38307 408.695 2.07617 408.349 2.07617H387.794C387.521 2.07617 387.286 2.27705 387.242 2.54489L379.838 49.0374C377.394 64.3377 385.043 73.0816 401.537 73.0816C418.03 73.0816 428.369 64.3377 430.812 49.0374L438.244 2.72345C438.3 2.38307 438.038 2.07617 437.692 2.07617H417.221L417.215 2.08175Z" fill="#F3EFDA" />
@@ -207,21 +290,116 @@ const Home = () => {
       Bridge classroom realities and curriculum expectations with the platform 
       that's AI-supported, but teacher-first.
     </p>
-    <div className="px-2 sm:px-0">
+    <div className="px-2 sm:px-0 mt-2 mb-0 sm:mb-2">
       <ButtonsGroup1 />
     </div>
   </div>
 </section>
-
+{/* Infinite Auto-scrolling Carousel */}
+<div className="w-full overflow-hidden py-2 sm:py-4 -mt-45 md:-mt-34 mb-5 relative group" id="infinite-carousel">
+  <div className="relative w-full overflow-hidden">
+    <div 
+      className="flex items-center"
+      style={{
+        display: 'flex',
+        width: 'max-content',
+        animation: 'scroll 20s linear infinite',
+        animationPlayState: 'running',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.animationPlayState = 'paused';
+      }}
+      onTouchStart={(e) => {
+        e.currentTarget.style.animationPlayState = 'paused';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.animationPlayState = 'running';
+      }}
+      onTouchEnd={(e) => {
+        e.currentTarget.style.animationPlayState = 'running';
+      }}
+    >
+      {[
+        "/images/sidebar/Math.avif",
+        "/images/sidebar/Science.avif",
+        "/images/sidebar/SocialStudies.avif",
+        "/images/sidebar/Reading.avif",
+        "/images/sidebar/ForeignLanguage.avif",
+        "/images/sidebar/ELA.avif",
+        "/images/sidebar/TestPrep.avif",
+        "/images/sidebar/Elementary.avif",
+        "/images/sidebar/Career.avif",
+        "/images/sidebar/Writing.avif"
+      ].flatMap((img, _, array) => [
+        ...array, // Original set
+        ...array  // Duplicate set for seamless looping
+      ]).map((img, index) => (
+        <div key={`img-${index}`} className="flex-shrink-0 mx-3 md:mx-6 w-[140px] h-[140px] md:w-[280px] md:h-[280px] transition-transform duration-300 hover:scale-105">
+          <img 
+            src={img}
+            alt={`Subject ${index + 1}`}
+            className="w-full h-full object-contain"
+            loading="lazy"
+          />
+        </div>
+      ))}
+    </div>
+  </div>
+  <style jsx global>{`
+    @keyframes scroll {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(calc(-280px * 10)); /* Adjusted for the actual number of items */
+      }
+    }
+    @media (max-width: 768px) {
+      @keyframes scroll {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(calc(-160px * 10)); /* Adjusted for mobile */
+        }
+      }
+    }
+    #infinite-carousel {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    #infinite-carousel::-webkit-scrollbar {
+      display: none;
+    }
+  `}</style>
+                <style jsx global>{`
+                  @keyframes scroll {
+                    0% {
+                      transform: translateX(0);
+                    }
+                    100% {
+                      transform: translateX(calc(-280px * 10)); /* Adjusted for the actual number of items */
+                    }
+                  }
+                `}</style>
+              </div>
+            </div>
             
-            {/* Trusted By Section */}
-            <section className="py-12 flex justify-center">
-              <div className="w-full max-w-3xl">
+            {/* Search Bar Section - Below Carousel */}
+            <section className="py-8 w-full flex justify-center">
+              <div className="w-full max-w-2xl px-4">
                 <SearchBar />
               </div>
             </section>
+            
+            {/* Trusted Shapes Section */}
+            <section className="pb-8">
+              <div className="hidden md:block w-full">
+                <TrustedShapes />
+              </div>
+            </section>
 
-            <div className="md:hidden w-full py-8">
+            <div className="md:hidden w-full pt-2 pb-4">
               <div className="max-w-7xl mx-auto px-4">
               <p className="text-center text-3xl font-bold text-white mb-8">
         TRUSTED BY TEACHERS IN <span className="text-[#ffc48a]">90% OF U.S. SCHOOLS </span> AND <span className="text-[#ffc48a]">150+ COUNTRIES</span>
@@ -250,28 +428,8 @@ const Home = () => {
               </div>
             </div>
 
-            <div className="hidden md:block">
-              <TrustedShapes />
-            </div>
-
-            </div>
-            </main>
-          </div>
-
-<div className="w-full bg-[#3b142b]">
-  <div className="md:pl-[216px] lg:pl-[316px]">
-    <div className="max-w-6xl mx-auto">
-      <HomeFeatures />
-    </div>
-  </div>
-</div>
-
-          
-        
-
-          <section className="w-full min-h-[calc(100vh-4rem)] mt-20 bg-[#3b142b] py-20 relative overflow-hidden z-40">
-
-          <div className="max-w-7xl mx-auto px-6 h-full flex items-center">
+          <section className="w-full min-h-[calc(100vh-4rem)] bg-[#3b142b] py-20 relative overflow-hidden z-40">
+            <div className="max-w-7xl mx-auto px-6 h-full flex items-center">
               <div className="flex flex-col md:flex-row gap-8 w-full">
                 {/* Left Column */}
                 <div className="w-full md:w-1/3 flex flex-col">
@@ -305,9 +463,9 @@ const Home = () => {
                 </div>
 
                 {/* Right Column */}
-                <div className="w-full md:w-2/3 space-y-6">
+                <div className="w-full md:w-2/3 space-y-4">
                   {/* Card 1 - AI Section */}
-                  <div className="bg-[#f1efda] rounded-2xl overflow-hidden shadow-lg">
+                  <div className="bg-[#f1efda] rounded-2xl overflow-hidden shadow-lg h-72 md:h-80">
                     <div className="flex flex-col md:flex-row h-full">
                       {/* Left Side - Content */}
                       <div className="w-full md:w-1/2 p-8 flex flex-col justify-center">
@@ -344,7 +502,7 @@ const Home = () => {
                   </div>
 
                   {/* Card 2 - Integration Section */}
-                  <div className="bg-[#f1efda] rounded-2xl overflow-hidden shadow-lg">
+                  <div className="bg-[#f1efda] rounded-2xl overflow-hidden shadow-lg h-72 md:h-80">
                     <div className="flex flex-col md:flex-row-reverse h-full">
                       {/* Left Side - Content */}
                       <div className="w-full md:w-1/2 p-8 flex flex-col justify-center">
@@ -550,7 +708,7 @@ const Home = () => {
         </section>
         
         {/* Student Testimonials Section */}
-        <section className="w-full py-16 sm:py-20 bg-[#f2efda] relative overflow-hidden z-40">
+        <section className="py-6 sm:py-10 md:py-12 px-4 sm:px-6 lg:px-8 bg-[#f2efda] relative overflow-hidden z-40">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
            <StudentTestimonial />
             

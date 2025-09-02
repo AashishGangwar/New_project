@@ -27,15 +27,17 @@ export default function ResponsiveSidebar() {
     { id: 10, img: "/images/sidebar/Writing.avif", link: "/writing", title: "Writing" }
   ];
 
-  // Auto-scroll for vertical version
+  // Auto-scroll for vertical version (desktop only)
   useEffect(() => {
-    scrollInterval.current = setInterval(() => {
-      if (!isHovered) {
-        setStartIndex((prev) => (prev + 1) % cards.length);
-      }
-    }, 5000);
+    if (window.innerWidth >= 768) { // Only auto-scroll on desktop
+      scrollInterval.current = setInterval(() => {
+        if (!isHovered) {
+          setStartIndex((prev) => (prev + 1) % cards.length);
+        }
+      }, 5000);
+    }
     return () => clearInterval(scrollInterval.current);
-  }, [isHovered]);
+  }, [isHovered, cards.length]);
 
   const visibleCards = Array.from({ length: 3 }, (_, i) => cards[(startIndex + i) % cards.length]);
 
@@ -69,62 +71,65 @@ export default function ResponsiveSidebar() {
   return (
     <div className="relative w-full">
       {/* Mobile Carousel */}
-      <div className="md:hidden flex flex-col w-full bg-[#3b142b] py-4">
-        <div 
-          className="relative w-full h-64 overflow-hidden touch-none"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          ref={containerRef}
-        >
+      <div className="md:hidden w-full py-4 px-2">
+        <div className="relative w-full flex items-center justify-center">
+          {/* Previous Image Preview */}
+          <div className="absolute left-0 w-1/5 h-40 opacity-60 overflow-hidden rounded-lg -mr 4">
+            <img
+              src={cards[(currentCardIndex - 1 + cards.length) % cards.length].img}
+              className="w-full h-full object-contain"
+              alt="Previous slide preview"
+            />
+          </div>
+          
+          {/* Main Image */}
           <div 
-            className="flex h-full transition-transform duration-300 ease-out"
-            style={{ transform: `translateX(-${currentCardIndex * 100}%)` }}
+            className="relative w-3/4 h-56 mx-auto overflow-visible cursor-pointer"
+            onClick={() => navigate(cards[currentCardIndex].link)}
           >
-            {cards.map((card, index) => (
-              <div 
-                key={card.id} 
-                className="w-full flex-shrink-0 h-full px-2"
-                onClick={() => navigate(card.link)}
-              >
-                <div className="relative w-full h-full flex items-center justify-center">
-                  <img
-                    src={card.img}
-                    className="h-full w-auto max-w-full object-contain"
-                    alt={`${card.title}`}
-                    style={{ maxHeight: '100%' }}
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = 'https://via.placeholder.com/300x400';
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                    <span className="text-white text-lg font-medium text-center px-2">{card.title}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
+            <img
+              src={cards[currentCardIndex].img}
+              className="w-full h-full object-contain"
+              alt={cards[currentCardIndex].title}
+            />
+          </div>
+          
+          {/* Next Image Preview */}
+          <div className="absolute right-0 w-1/5 h-40 opacity-60 overflow-hidden rounded-lg -ml-4">
+            <img
+              src={cards[(currentCardIndex + 1) % cards.length].img}
+              className="w-full h-full object-contain"
+              alt="Next slide preview"
+            />
           </div>
         </div>
-        <div className="flex justify-center mt-2 space-x-2">
-          {cards.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => scrollToCard(index)}
-              className={`w-2 h-2 rounded-full transition-colors ${currentCardIndex === index ? 'bg-white w-4' : 'bg-gray-500'}`}
-              aria-label={`Go to slide ${index + 1}`}
-            />
-          ))}
+        
+        {/* Navigation Buttons */}
+        <div className="flex justify-center mt-4 space-x-4">
+          <button 
+            onClick={() => scrollToCard((currentCardIndex - 1 + cards.length) % cards.length)}
+            className="w-8 h-8 flex items-center justify-center rounded-full"
+            aria-label="Previous"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <button 
+            onClick={() => scrollToCard((currentCardIndex + 1) % cards.length)}
+            className="w-8 h-8 flex items-center justify-center rounded-full"
+            aria-label="Next"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
         </div>
       </div>
 
       {/* Desktop Sidebar */}
       {/* Desktop Sidebar */}
       <div className="hidden md:block">
-        <div className="flex justify-center w-full p-1 bg-[#3b142b]">
+        <div className="flex justify-center w-full mt-10 p-1 bg-[#3b142b]">
           <button 
             onClick={() => scrollToCard((currentCardIndex - 1 + cards.length) % cards.length)}
-            className="w-[3rem] h-[3rem] flex items-center justify-center bg-[#4a1a37] hover:bg-[#5d2246] text-white rounded-full transition-all duration-200 shadow-lg hover:scale-110"
+            className="w-[3rem] h-[2rem] flex items-center justify-center bg-[#4a1a37] hover:bg-[#5d2246] text-white rounded-full transition-all duration-200 shadow-lg hover:scale-110"
             aria-label="Scroll up"
           >
             <ChevronUp className="w-6 h-6" />
@@ -137,7 +142,7 @@ export default function ResponsiveSidebar() {
             items-center
             gap-4
             overflow-y-auto
-            w-full md:w-[270px] lg:w-[310px]
+            w-full md:w-[270px] lg:w-[320px]
             px-3 py-2
             hide-scrollbar
             bg-[#3b142b]
@@ -151,7 +156,7 @@ export default function ResponsiveSidebar() {
               className="
                 relative group cursor-pointer transition-all duration-300 ease-in-out
                 transform hover:scale-105 hover:shadow-2xl rounded-lg overflow-hidden
-                flex-shrink-0 w-40 h-40 md:w-[240px] md:h-[220px]"
+                flex-shrink-0 w-30 h-30 md:w-[200px] md:h-[200px]"
               onClick={() => navigate(card.link)}
             >
               <img
@@ -163,7 +168,7 @@ export default function ResponsiveSidebar() {
                   e.target.src = `https://via.placeholder.com/400`;
                 }}
               />
-              <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+              <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 transition-opacity duration-300 flex items-center justify-center">
                 <span className="text-white text-lg font-medium">{card.title}</span>
               </div>
             </div>
@@ -173,7 +178,7 @@ export default function ResponsiveSidebar() {
         <div className="flex justify-center w-full p-1 bg-[#3b142b]">
           <button 
             onClick={() => scrollToCard((currentCardIndex + 1) % cards.length)}
-            className="w-[3rem] h-[3rem] flex items-center justify-center bg-[#4a1a37] hover:bg-[#5d2246] text-white rounded-full transition-all duration-200 shadow-lg hover:scale-110"
+            className="w-[3rem] h-[2rem] flex items-center justify-center bg-[#4a1a37] hover:bg-[#5d2246] text-white rounded-full transition-all duration-200 shadow-lg hover:scale-110"
             aria-label="Scroll down"
           >
             <ChevronDown className="w-6 h-6" />

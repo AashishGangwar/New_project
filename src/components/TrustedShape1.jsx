@@ -26,40 +26,41 @@ export default function TrustedShapes() {
   ];
 
   return (
-    <section className="py-12 border-t border-white/10">
-      <p className="text-center text-3xl font-bold text-white mb-8">
+    <section className="py-8 md:py-12 border-t border-white/10">
+      <p className="text-center text-xl md:text-3xl font-bold text-white mb-6 md:mb-8 px-4">
         TRUSTED BY TEACHERS IN <span className="text-[#ffc48a]">90% OF U.S. SCHOOLS </span> AND <span className="text-[#ffc48a]">150+ COUNTRIES</span>
       </p>
-      <div className="flex justify-center items-center flex-wrap gap-1 px-2">
-        {paths.map((path, index) => (
-          <div key={index} className="relative w-56 h-40">
-            <svg
-              width="100%"
-              height="100%"
-              viewBox="0 0 170 128"
-              className="rounded-2xl overflow-hidden"
-              preserveAspectRatio="xMidYMid meet"
-            >
-              <path
-                d={path.d}
-                fill="rgba(255, 255, 255, 0.1)"
-                className="backdrop-blur-sm"
-                transform={path.transform || undefined}
+      <div className="flex flex-nowrap md:flex-wrap justify-center items-center gap-2 md:gap-1 px-2 overflow-x-auto pb-4 md:pb-0">
+        {images.map((img, index) => (
+          <div key={index} className="flex-shrink-0 w-32 h-20 md:w-56 md:h-40 relative">
+            {/* Only show SVG on desktop */}
+            <div className="hidden md:block absolute inset-0">
+              <svg
+                width="100%"
+                height="100%"
+                viewBox="0 0 170 128"
+                className="rounded-2xl overflow-hidden"
+                preserveAspectRatio="xMidYMid meet"
+              >
+                <path
+                  d={paths[index]?.d}
+                  fill="rgba(255, 255, 255, 0.1)"
+                  className="backdrop-blur-sm"
+                  transform={paths[index]?.transform}
+                />
+              </svg>
+            </div>
+            <div className="w-full h-full flex items-center justify-center p-2 md:p-6">
+              <img
+                src={img}
+                alt={`Trusted brand ${index + 1}`}
+                className="w-full h-full object-contain scale-110"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = `https://via.placeholder.com/192x128/3b142b/ffffff?text=Brand+${index + 1}`;
+                }}
               />
-              <foreignObject x="0" y="0" width="100%" height="100%">
-                <div className="w-full h-full flex items-center justify-center p-6">
-                  <img
-                    src={images[index]}
-                    alt={`Trusted brand ${index + 1}`}
-                    className="w-full h-full object-contain scale-110"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = `https://via.placeholder.com/192x128/3b142b/ffffff?text=Brand+${index + 1}`;
-                    }}
-                  />
-                </div>
-              </foreignObject>
-            </svg>
+            </div>
           </div>
         ))}
       </div>
