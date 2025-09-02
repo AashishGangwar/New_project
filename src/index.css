@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+/* Mobile text size adjustment */
+@layer base {
+  /* Base size remains unchanged for desktop */
+  html {
+    font-size: 16px; /* Default size */
+  }
+  
+  /* Only apply smaller text on mobile */
+  @media (max-width: 767px) {
+    html {
+      font-size: 14px;
+    }
+  }
+}

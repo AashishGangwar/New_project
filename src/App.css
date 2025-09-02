@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+/* Custom Scrollbar for Sidebar */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Card hover effect */
+.card-hover-effect {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-hover-effect:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Scroll buttons */
+.scroll-button {
+  transition: all 0.2s ease;
+  opacity: 0.7;
+}
+
+.scroll-button:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
