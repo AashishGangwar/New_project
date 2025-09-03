@@ -427,7 +427,8 @@ const Home = () => {
                 </div>
               </div>
             </div>
-
+   {/* Features Section */}
+   <HomeFeatures />
           <section className="w-full min-h-[calc(100vh-4rem)] bg-[#3b142b] py-20 relative overflow-hidden z-40">
             <div className="max-w-7xl mx-auto px-6 h-full flex items-center">
               <div className="flex flex-col md:flex-row gap-8 w-full">
@@ -602,7 +603,7 @@ const Home = () => {
                   swiperRef.current = swiper;
                   swiper.autoplay.start();
                 }}
-                className="testimonial-swiper py-4 sm:py-8"
+                className="testimonial-swiper py-4 sm:py-8 lg:mt-10"
               >
                 {testimonials.map((testimonial) => (
                   <SwiperSlide key={testimonial.id}>
@@ -706,6 +707,8 @@ const Home = () => {
             
           </div>
         </section>
+        
+     
         
         {/* Student Testimonials Section */}
         <section className="py-6 sm:py-10 md:py-12 px-4 sm:px-6 lg:px-8 bg-[#f2efda] relative overflow-hidden z-40">

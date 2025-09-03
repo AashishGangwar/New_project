@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.svg';
 import { ChevronDownIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
-import { Dropdown, DropdownButton, DropdownMenu, DropdownMenuMulti } from './dropdown';
+import { Dropdown, DropdownButton, DropdownMenu, DropdownMenuMulti } from './dropdown/index';
 import { menuData } from '../data/menuData';
 
 export default function Navbar() {
